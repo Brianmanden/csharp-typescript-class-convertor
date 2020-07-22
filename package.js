@@ -12,41 +12,41 @@ export class Utility {
         });
     }
 
-    static gettingFileName = (className) => {
-        var newString = className.charAt(0).toLowerCase();
-        for (let index = 1; index < className.length; index++) {
-            if (className.charAt(index).toUpperCase() == className.charAt(index)) {
-                if (!isNaN(className.charAt(index))) {
-                    newString += className.charAt(index);
-                } else {
-                    newString += `-` + className.charAt(index).toString().toLowerCase();
-                }
-            } else {
-                newString += `${className.charAt(index)}`;
-            }
-        }
-        return newString += `.ts`;
-    }
+    // static gettingFileName = (className) => {
+    //     var newString = className.charAt(0).toLowerCase();
+    //     for (let index = 1; index < className.length; index++) {
+    //         if (className.charAt(index).toUpperCase() == className.charAt(index)) {
+    //             if (!isNaN(className.charAt(index))) {
+    //                 newString += className.charAt(index);
+    //             } else {
+    //                 newString += `-` + className.charAt(index).toString().toLowerCase();
+    //             }
+    //         } else {
+    //             newString += `${className.charAt(index)}`;
+    //         }
+    //     }
+    //     return newString += `.ts`;
+    // }
 
-    static ettingClassName = (fileName) => {
-        // Getting Number Of Dash
-        var numberOfDashes = 0;
-        for (let index = 0; index < fileName.length; index++) {
-            if (fileName.charAt(index) == `-`) {
-                numberOfDashes++;
-            }
-        }
+    // static ettingClassName = (fileName) => {
+    //     // Getting Number Of Dash
+    //     var numberOfDashes = 0;
+    //     for (let index = 0; index < fileName.length; index++) {
+    //         if (fileName.charAt(index) == `-`) {
+    //             numberOfDashes++;
+    //         }
+    //     }
 
-        fileName = fileName.replace(fileName.charAt(0), fileName.charAt(0).toUpperCase());
+    //     fileName = fileName.replace(fileName.charAt(0), fileName.charAt(0).toUpperCase());
 
-        for (let index = 0; index < numberOfDashes; index++) {
-            var nextIndex = fileName.indexOf(`-`);
-            fileName = fileName.replace(`${fileName.charAt(nextIndex)}${fileName.charAt(nextIndex + 1)}`, fileName.charAt(nextIndex + 1).toUpperCase());
-        }
-        var indexOfDot = fileName.indexOf(`.`);
-        fileName = fileName.slice(0, indexOfDot);
-        return fileName;
-    }
+    //     for (let index = 0; index < numberOfDashes; index++) {
+    //         var nextIndex = fileName.indexOf(`-`);
+    //         fileName = fileName.replace(`${fileName.charAt(nextIndex)}${fileName.charAt(nextIndex + 1)}`, fileName.charAt(nextIndex + 1).toUpperCase());
+    //     }
+    //     var indexOfDot = fileName.indexOf(`.`);
+    //     fileName = fileName.slice(0, indexOfDot);
+    //     return fileName;
+    // }
 
     static checkDirAndGenerateMissingDir = (path) => {
         if (!fs.existsSync(path)) {
@@ -77,16 +77,16 @@ export class Utility {
         }
     }
 
-    static changeToDataType = (fileNames) => {
-        var newArrayToDataTypes = new Array(0);
-        fileNames.forEach(a => {
-            newArrayToDataTypes.push({
-                className: this.gettingClassName(a),
-                fileName: a
-            });
-        });
-        return newArrayToDataTypes;
-    }
+    // static changeToDataType = (fileNames) => {
+    //     var newArrayToDataTypes = new Array(0);
+    //     fileNames.forEach(a => {
+    //         newArrayToDataTypes.push({
+    //             className: this.gettingClassName(a),
+    //             fileName: a
+    //         });
+    //     });
+    //     return newArrayToDataTypes;
+    // }
 
     static hideFile = (path) => {
         fswin.setAttributesSync(path, {
@@ -573,7 +573,7 @@ export class ConvertingProcess {
             // Adding The Constructor Final Line
             fileContent += `\t}\n\n`;
         }
-        
+
         // Adding The Property One By One
         propertyArray.forEach(property => {
             fileContent += `${property.propertyLine}`;

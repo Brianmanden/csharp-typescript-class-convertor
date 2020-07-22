@@ -17,7 +17,8 @@ pathArray.push("path2")
 var destinationPath = 'toPath';
 var config = {
     camelCase: false,
-    usingDefaultInTsFile: false
+    usingDefaultInTsFile: false,    
+    usingClass:true                 // to use class declration true - use false for interface declaration
 }
 
 ConvertProcess.StartExecution(pathArray, destinationPath, config);
