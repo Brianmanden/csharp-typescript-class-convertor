@@ -255,9 +255,17 @@ export class Utility {
             } else if (line.includes(' class ') && !this.checkIfValueIsComment(line, 'class')) {
                 var className = ConvertingProcess.extractClassName(line);
                 if (config.usingDefaultInTsFile) {
-                    fileContent = `export default class ${className} {\n`;
+                    if (config.usingClass) {
+                        fileContent = `export default class ${className} {\n`;
+                    } else {
+                        fileContent = `export default interface ${className} {\n`;
+                    }
                 } else {
-                    fileContent = `export class ${className} {\n`;
+                    if (config.usingClass) {
+                        fileContent = `export class ${className} {\n`;
+                    } else {
+                        fileContent = `export interface ${className} {\n`;
+                    }
                 }
 
                 classType.tsFile = this.switchingName(className);
@@ -268,7 +276,7 @@ export class Utility {
         }
 
         console.log(`Preparing Class ${classType.tsClass} For File ${classType.tsFile}`);
-        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr);
+        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config);
 
         var toFilePath = path.join(to, classType.tsFile);
         console.log(`Writing Into File ${toFilePath}`);
@@ -407,26 +415,32 @@ export class ConvertingProcess {
         }
 
         propertyInfo.propertyName = propertyName;
-        return this.creatingPropertyLineObject(propertyInfo);
+        return this.creatingPropertyLineObject(propertyInfo, config);
     }
 
-    static creatingPropertyLineObject = (propertyInfo) => {
-        var propertyLine = `\tpublic ${propertyInfo.propertyName}: ${propertyInfo.dataType}`;
+    static creatingPropertyLineObject = (propertyInfo, config) => {
+        var propertyLine = ``;
         var initLine = `\t\t`;
+        if (config.usingClass) {
+            propertyLine = `\tpublic ${propertyInfo.propertyName}: ${propertyInfo.dataType}`;
+
+            if (propertyInfo.initalize) {
+                initLine += `this.${propertyInfo.propertyName} = new ${propertyInfo.dataType}()`;
+                if (propertyInfo.originalDataType != undefined) {
+                    initLine += `;\t\t\t\t//*****${propertyInfo.originalDataType}\n`;
+                } else {
+                    initLine += `;\n`;
+                }
+            }
+        } else {
+            propertyLine = `\t${propertyInfo.propertyName}: ${propertyInfo.dataType}`;
+        }
+
         if (propertyInfo.originalDataType != undefined) {
             propertyInfo.propertyTsFile = Utility.switchingName(propertyInfo.originalDataType);
             propertyLine += `;\t\t\t\t//*****${propertyInfo.originalDataType}\n`;
         } else {
             propertyLine += `;\n`;
-        }
-
-        if (propertyInfo.initalize) {
-            initLine += `this.${propertyInfo.propertyName} = new ${propertyInfo.dataType}()`;
-            if (propertyInfo.originalDataType != undefined) {
-                initLine += `;\t\t\t\t//*****${propertyInfo.originalDataType}\n`;
-            } else {
-                initLine += `;\n`;
-            }
         }
 
         return {
@@ -548,16 +562,18 @@ export class ConvertingProcess {
         }
     }
 
-    static AddingConstructorAndFinalLine = (fileContent, propertyArray) => {
-        fileContent += `\tconstructor() {\n`;
-        // Adding The Init Lines
-        propertyArray.filter(property => property.propertyInfo.initalize).forEach(property => {
-            fileContent += `${property.initLine}`;
-        });
+    static AddingConstructorAndFinalLine = (fileContent, propertyArray, config) => {
+        if (config.usingClass) {
+            fileContent += `\tconstructor() {\n`;
+            // Adding The Init Lines
+            propertyArray.filter(property => property.propertyInfo.initalize).forEach(property => {
+                fileContent += `${property.initLine}`;
+            });
 
-        // Adding The Constructor Final Line
-        fileContent += `\t}\n\n`;
-
+            // Adding The Constructor Final Line
+            fileContent += `\t}\n\n`;
+        }
+        
         // Adding The Property One By One
         propertyArray.forEach(property => {
             fileContent += `${property.propertyLine}`;
