@@ -9,6 +9,7 @@ export default class ConvertProcess {
     static StartExecution = (arrayOfPathes, toDirectory, _config) => {
         //camelCase: false,
         //usingDefaultInTsFile: false
+        //usingClass:true
         this.config = _config;
         if (Utility.checkValid(arrayOfPathes)) {
             this.prepareDestination(arrayOfPathes, toDirectory);
