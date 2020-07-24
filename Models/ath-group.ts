@@ -1,10 +1,15 @@
 import Account from './account';
 import AddEmp from './add-emp';
 
-export default interface AthGroup {
-	AGID: number;
-	AGName: string;
-	ComID: number;
-	Employee: Array<Account>;
-	PageAuth: Array<AddEmp>;
+export default class AthGroup {
+	constructor() {
+		this.Employee = new Array<Account>();
+		this.PageAuth = new Array<AddEmp>();
+	}
+
+	public AGID: number;
+	public AGName: string;
+	public ComID: number;
+	public Employee: Array<Account>;
+	public PageAuth: Array<AddEmp>;
 }

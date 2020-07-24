@@ -253,7 +253,9 @@ export class Utility {
                 (line.includes('namespace') && !this.checkIfValueIsComment(line, 'namespace'))) {
                 continue;
             } else if (line.includes(' class ') && !this.checkIfValueIsComment(line, 'class')) {
-                var className = ConvertingProcess.extractClassName(line);
+                var classNameObj = ConvertingProcess.extractClassName(line);
+                var className = classNameObj.className;
+
                 if (config.usingDefaultInTsFile) {
                     if (config.usingClass) {
                         fileContent = `export default class ${className} {\n`;
@@ -270,6 +272,7 @@ export class Utility {
 
                 classType.tsFile = this.switchingName(className);
                 classType.tsClass = className;
+                classType.parentClass = classNameObj.parentClass;
             } else if (line.includes('public ') && line.includes('get;') && line.includes('set;')) {
                 propertyArr.push(ConvertingProcess.gettingPropertyLine(ConvertingProcess.gettingVariableData(line), config));
             }
@@ -286,12 +289,48 @@ export class Utility {
     }
 
     static startReplacingAny = (_path, file, arrayOfFiles, config) => {
-        //console.log(file);
         console.log(`Start Adding Models Into File => ${_path}/${file}`);
         var lines = this.readLineByLine(path.join(_path, file));
+        var currentClassName = this.switchingName(file, true);
+        var classObject = arrayOfFiles.find(a => a.tsClass == currentClassName);
+        var extendsClass = undefined;
+        if (classObject) {
+            if (classObject.parentClass) {
+                extendsClass = arrayOfFiles.find(a => a.tsClass == classObject.parentClass);
+            }
+        }
         var imports = [];
+        if (extendsClass) {
+            var outDataType = extendsClass.tsFile.substring(0, extendsClass.tsFile.lastIndexOf('.'));
+            if (config.usingDefaultInTsFile) {
+                var importObj = {
+                    dataType: outDataType,
+                    importLine: `import ${extendsClass.tsClass} from './${outDataType}';`
+                };
+                Utility.assignObjectToArray(importObj, imports, 'dataType', true);
+            } else {
+                var importObj = {
+                    dataType: outDataType,
+                    importLine: `import { ${extendsClass.tsClass} } from './${outDataType}';`
+                };
+                Utility.assignObjectToArray(importObj, imports, 'dataType', true);
+            }
+        }
         //console.log(arrayOfFiles);
         lines.forEach((line, index) => {
+            if (line.includes(` class `) || line.includes(` interface `)) {
+                if (extendsClass) {
+                    console.log(lines[index]);
+                    console.log("dsdad", currentClassName);
+                    lines[index] = this.replaceInLine(line, `${currentClassName} extends ${extendsClass.tsClass}`, currentClassName);
+                    console.log(lines[index]);
+                }
+            }
+
+            if (line.includes('constructor') && extendsClass) {
+                lines[index] = line + `\n\t\tsuper();`;
+            }
+
             if (line.includes(`//*****`)) {
                 var className = this.gettingClassNameFromComment(line, `//*****`);
                 var dataTypeObj = arrayOfFiles.find(f => f.tsClass == className);
@@ -339,7 +378,9 @@ export class Utility {
     }
 
     static replaceInLine = (line, replaceTo, replaceValue, startIndex = 0) => {
-        return line.substring(0, line.indexOf('any', startIndex)) + replaceTo + line.substring(line.indexOf('any', startIndex) + (replaceValue.length), line.length);
+        var firstSection = line.indexOf(replaceValue, startIndex);
+        var newLine = line.substring(0, firstSection) + replaceTo + line.substring(firstSection + (replaceValue.length), line.length);
+        return newLine;
     }
 
     static gettingClassNameFromComment = (line, str) => {
@@ -370,7 +411,33 @@ export class ConvertingProcess {
             }
         }
 
-        return line.slice(nameFirstIndex, spaceIndexAfterName);
+        var indexOfDots = line.indexOf(`:`);
+        if (indexOfDots != -1) {
+
+        }
+
+        return {
+            className: line.slice(nameFirstIndex, spaceIndexAfterName),
+            parentClass: this.gettingExportClass(line)
+        };
+    }
+
+    static gettingExportClass = (line) => {
+        var indexOfDot = line.indexOf(`:`);
+        if (indexOfDot != -1) {
+            var sperator = line.indexOf(`,`, indexOfDot + 1);
+            if (sperator == -1) {
+                sperator = line.indexOf(`{`, indexOfDot + 1);
+                if (sperator == -1) {
+                    sperator = line.length + 1;
+                }
+            }
+
+            var exportClass = line.substring(indexOfDot + 1, sperator).trim();
+            return exportClass;
+        } else {
+            return '';
+        }
     }
 
     static gettingVariableData = (line) => {

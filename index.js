@@ -67,7 +67,8 @@ export default class ConvertProcess {
             [
                 {
                     tsFile : account-view.ts,
-                    tsClass : AccountView
+                    tsClass : AccountView,
+                    parentClass: Shift
                 }
             ]        
         */

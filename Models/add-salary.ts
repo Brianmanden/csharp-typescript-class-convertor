@@ -1,13 +1,16 @@
 import AddType from './add-type';
 
-export default interface AddSalary {
-	ASID: number;
-	ASName: string;
-	AddPercent: number;
-	AddDay: number;
-	AddTypeID: number;
-	AddHour: number;
-	SalaryTypeID: number;
-	AddType: AddType;
-	SalaryType: any;
+export default class AddSalary {
+	constructor() {
+	}
+
+	public ASID: number;
+	public ASName: string;
+	public AddPercent: number;
+	public AddDay: number;
+	public AddTypeID: number;
+	public AddHour: number;
+	public SalaryTypeID: number;
+	public AddType: AddType;
+	public SalaryType: any;
 }
