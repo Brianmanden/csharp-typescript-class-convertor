@@ -101,10 +101,21 @@ export class Utility {
         fs.removeSync(path);
     }
 
-    static copyAllFromTo = (from, to, condition) => {
+    static copyAllFromTo = (from, to, excludedModels, condition) => {
         var filesToCopy = fs.readdirSync(from).filter(a => fs.lstatSync(path.join(from, a)).isFile());
+
         if (condition) {
             filesToCopy = filesToCopy.filter(condition);
+        }
+
+        if (excludedModels) {
+            excludedModels.forEach(fil => {
+                var indexToRemove = filesToCopy.findIndex(a => path.join(from, a) == fil);
+                if (indexToRemove != -1) {
+                    console.log(`Excluding File ... ${fil}`);
+                    filesToCopy.splice(indexToRemove, 1);
+                }
+            });
         }
 
         filesToCopy.forEach(file => {

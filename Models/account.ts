@@ -1,7 +1,4 @@
 import Shit from './shit';
-import AddType from './add-type';
-import AddSalary from './add-salary';
-import AddEmp from './add-emp';
 
 export default class Account extends Shit {
 	constructor() {
@@ -11,9 +8,9 @@ export default class Account extends Shit {
 		this.AccountSheet = new Array<any>();
 		this.Bank = new Array<any>();
 		this.ConTypeAddTaxAccountNavigation = new Array<Account>();
-		this.ConTypeCustomerAccountNavigation = new Array<AddType>();
-		this.ConTypeDiscountAccountNavigation = new Array<AddSalary>();
-		this.ConTypeMonyAccountNavigation = new Array<AddEmp>();
+		this.ConTypeCustomerAccountNavigation = new Array<any>();
+		this.ConTypeDiscountAccountNavigation = new Array<any>();
+		this.ConTypeMonyAccountNavigation = new Array<any>();
 		this.ConTypeProcessExpenceNavigation = new Array<any>();
 		this.ConTypeProductAccountNavigation = new Array<any>();
 		this.ConTypeSalesAccountNavigation = new Array<any>();
@@ -94,9 +91,9 @@ export default class Account extends Shit {
 	public AccountSheet: Array<any>;
 	public Bank: Array<any>;
 	public ConTypeAddTaxAccountNavigation: Array<Account>;
-	public ConTypeCustomerAccountNavigation: Array<AddType>;
-	public ConTypeDiscountAccountNavigation: Array<AddSalary>;
-	public ConTypeMonyAccountNavigation: Array<AddEmp>;
+	public ConTypeCustomerAccountNavigation: Array<any>;
+	public ConTypeDiscountAccountNavigation: Array<any>;
+	public ConTypeMonyAccountNavigation: Array<any>;
 	public ConTypeProcessExpenceNavigation: Array<any>;
 	public ConTypeProductAccountNavigation: Array<any>;
 	public ConTypeSalesAccountNavigation: Array<any>;

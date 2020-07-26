@@ -6,14 +6,14 @@ import {
 } from './package.js'
 
 export default class ConvertProcess {
-    static StartExecution = (arrayOfPathes, toDirectory, _config) => {
+    static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels) => {
         //camelCase: false,
         //usingDefaultInTsFile: false
         //usingClass:true
         this.config = _config;
         if (Utility.checkValid(arrayOfPathes)) {
             this.prepareDestination(arrayOfPathes, toDirectory);
-            this.startMovingFilesToTemp();
+            this.startMovingFilesToTemp(excludedModels);
             this.startSplitingFiles();
             this.startConvertingFilesStep1();
             this.deletingTempDirs();
@@ -43,10 +43,10 @@ export default class ConvertProcess {
         Utility.hideFile(this.destinationPathTemp);
     }
 
-    static startMovingFilesToTemp = () => {
+    static startMovingFilesToTemp = (excludedModels) => {
         console.log('Start Moving Files To Temp.');
         this.arrayOfSources.forEach(path => {
-            Utility.copyAllFromTo(path, this.destinationPathTemp, a => a.endsWith('.cs'));
+            Utility.copyAllFromTo(path, this.destinationPathTemp, excludedModels, a => a.endsWith('.cs'));
         });
         console.log('End Moving Files To Temp.');
     }

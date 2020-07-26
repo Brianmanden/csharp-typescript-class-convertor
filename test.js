@@ -1,28 +1,14 @@
 import ConvertProcess from './index.js';
+import path from 'path';
 
 ConvertProcess.StartExecution(
     [
         '../Model1',
-        '../Model2',
-        '../Model3'
     ], './Models', {
         camelCase: false,
         usingDefaultInTsFile: true,
         usingClass: true
-    }
+    }, [
+        path.join('..', 'Model1', 'AddEmp.cs')
+    ]
 );
-
-
-// var line = `public class Shit : Account`;
-// var indexOfDot = line.indexOf(`:`);
-
-// var sperator = line.indexOf(`,`, indexOfDot + 1);
-// if (sperator == -1) {
-//     sperator = line.indexOf(`{`, indexOfDot + 1);
-//     if (sperator == -1) {
-//         sperator = line.length + 1;
-//     }
-// }
-
-// var exportClass = line.substring(ind + 1, sperator).trim();
-//console.log(exportClass);
