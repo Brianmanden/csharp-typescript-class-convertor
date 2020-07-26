@@ -9,6 +9,7 @@ npm i csharp-typescript-class-convertor --save-dev
 In Your Javascript File 
 ```javascript
 import ConvertProcess from "csharp-typescript-class-convertor";
+import path from 'path';
 
 var pathArray = [];
 pathArray.push("path1")
@@ -26,6 +27,8 @@ var excludedModels = [
 ]
 ConvertProcess.StartExecution(pathArray, destinationPath, config, excludedModels);
 ```
+
+Note --> there is a testing file in the package called test.js that demonstrate how to use this package.
 
 the first argument containing pathes of the models that you want to upload.
 
