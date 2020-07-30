@@ -2,6 +2,9 @@ import fs from 'fs-extra';
 import fswin from 'fswin';
 import path from 'path';
 import readlines from 'n-readlines';
+import {
+    Console
+} from 'console';
 
 export class Utility {
     constructor() {}
@@ -210,6 +213,11 @@ export class Utility {
                 if (line.includes(' class ') && !this.checkIfValueIsComment(line, 'class')) {
                     fileContent.push([]);
                 }
+
+                if (line.includes(' enum ') && !this.checkIfValueIsComment(line, 'enum')) {
+                    fileContent.push([]);
+                }
+
                 var index = fileContent.length - 1;
                 if (index >= 0) {
                     if (line.trim() != '') {
@@ -249,15 +257,48 @@ export class Utility {
         }
     }
 
+    static extractEnumVariableFromLine = (line) => {
+        var result = line.split(',').filter(a => a.trim() != '');
+        result = result.map(a => a.split('='));
+
+        var newResult = [];
+
+        result.forEach(element => {
+            newResult.push(element[0].trim());
+        });
+
+        result = newResult.map(a => a.split('}'));
+        newResult = [];
+
+        result.forEach(element => {
+            newResult.push(element[0].trim());
+        });
+
+        newResult = newResult.filter(a => a.trim() != '');
+        newResult = newResult.filter(a => a != '{');
+        console.log("Elements From This Enum's Line ... ", newResult);
+        return newResult;
+    }
+
     static initConvertFile = (filePath, to, config) => {
         var lines = this.readLineByLine(filePath);
         var fileContent = ``;
         var propertyArr = [];
         var classType = {};
+        var isClass = true;
+        var firstLine = true;
         for (let index = 0; index < lines.length; index++) {
             var line = lines[index];
 
             console.log(`Start Converting File ${filePath} Line Number => ${index + 1}`);
+
+            if (!firstLine && !isClass) {
+                console.log("Extracting Enum Variables ... ");
+                var newResult = this.extractEnumVariableFromLine(line);
+                newResult.forEach(a => {
+                    fileContent += `\t${a} = "${a}",\n`;
+                });
+            }
 
             if ((line.includes('using') && !this.checkIfValueIsComment(line, 'using')) ||
                 line.trim() == '' || line.trim() == '{' || line.trim() == '}' ||
@@ -284,19 +325,41 @@ export class Utility {
                 classType.tsFile = this.switchingName(className);
                 classType.tsClass = className;
                 classType.parentClass = classNameObj.parentClass;
+            } else if (line.includes(' enum ') && !this.checkIfValueIsComment(line, 'enum')) {
+                isClass = false;
+                firstLine = false;
+
+                var classNameObj = ConvertingProcess.extractEnumName(line);
+                var className = classNameObj.className;
+
+                fileContent = `export enum ${className} {\n`;
+
+                classType.tsFile = this.switchingName(className);
+                classType.tsClass = className;
+                classType.isEnum = true;
             } else if (line.includes('public ') && line.includes('get;') && line.includes('set;')) {
                 propertyArr.push(ConvertingProcess.gettingPropertyLine(ConvertingProcess.gettingVariableData(line), config));
             }
         }
-
-        console.log(`Preparing Class ${classType.tsClass} For File ${classType.tsFile}`);
-        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config);
+        if (isClass) {
+            console.log(`Preparing Class ${classType.tsClass} For File ${classType.tsFile}`);
+            fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config);
+        } else {
+            fileContent = this.addingFinalLineInEnum(fileContent);
+        }
 
         var toFilePath = path.join(to, classType.tsFile);
         console.log(`Writing Into File ${toFilePath}`);
         this.writeIntoFile(toFilePath, fileContent);
-
+        console.log("Class Type :::::::::::::::::::: " + JSON.stringify(classType));
         return classType;
+    }
+
+    static addingFinalLineInEnum = (fileContent) => {
+        console.log(fileContent);
+        fileContent = fileContent.slice(0, fileContent.lastIndexOf(','));
+        fileContent += '\n}';
+        return fileContent;
     }
 
     static startReplacingAny = (_path, file, arrayOfFiles, config) => {
@@ -332,7 +395,7 @@ export class Utility {
             if (line.includes(` class `) || line.includes(` interface `)) {
                 if (extendsClass) {
                     console.log(lines[index]);
-                    console.log("dsdad", currentClassName);
+                    console.log("Current Class Name : ", currentClassName);
                     lines[index] = this.replaceInLine(line, `${currentClassName} extends ${extendsClass.tsClass}`, currentClassName);
                     console.log(lines[index]);
                 }
@@ -350,18 +413,26 @@ export class Utility {
                     newLine = this.replaceInLine(line, className, 'any', line.indexOf(`:`));
                     if (dataTypeObj.tsFile != file) {
                         var classFilePath = dataTypeObj.tsFile.substring(0, dataTypeObj.tsFile.lastIndexOf('.'));
-                        if (config.usingDefaultInTsFile) {
-                            var importObj = {
-                                dataType: classFilePath,
-                                importLine: `import ${className} from './${classFilePath}';`
-                            };
-                            Utility.assignObjectToArray(importObj, imports, 'dataType', true);
-                        } else {
+                        if (dataTypeObj.isEnum) {
                             var importObj = {
                                 dataType: classFilePath,
                                 importLine: `import { ${className} } from './${classFilePath}';`
                             };
                             Utility.assignObjectToArray(importObj, imports, 'dataType', true);
+                        } else {
+                            if (config.usingDefaultInTsFile) {
+                                var importObj = {
+                                    dataType: classFilePath,
+                                    importLine: `import ${className} from './${classFilePath}';`
+                                };
+                                Utility.assignObjectToArray(importObj, imports, 'dataType', true);
+                            } else {
+                                var importObj = {
+                                    dataType: classFilePath,
+                                    importLine: `import { ${className} } from './${classFilePath}';`
+                                };
+                                Utility.assignObjectToArray(importObj, imports, 'dataType', true);
+                            }
                         }
                     }
                 }
@@ -421,15 +492,30 @@ export class ConvertingProcess {
                 spaceIndexAfterName = line.length;
             }
         }
-
-        var indexOfDots = line.indexOf(`:`);
-        if (indexOfDots != -1) {
-
-        }
-
         return {
             className: line.slice(nameFirstIndex, spaceIndexAfterName),
             parentClass: this.gettingExportClass(line)
+        };
+    }
+
+    static extractEnumName = (line) => {
+        var index = line.indexOf('enum ');
+        var nameFirstIndex = index + 5;
+
+        var spaceIndexAfterName = line.indexOf(' ', nameFirstIndex);
+
+        if (spaceIndexAfterName != -1 && line.indexOf('>', spaceIndexAfterName) != -1) {
+            spaceIndexAfterName = line.indexOf('>') + 1;
+        }
+
+        if (spaceIndexAfterName == -1) {
+            spaceIndexAfterName = line.indexOf('{', nameFirstIndex);
+            if (spaceIndexAfterName == -1) {
+                spaceIndexAfterName = line.length;
+            }
+        }
+        return {
+            className: line.slice(nameFirstIndex, spaceIndexAfterName),
         };
     }
 
@@ -558,7 +644,7 @@ export class ConvertingProcess {
             _dataType == `decimal?`
         ) {
             dataType = `number`;
-        } else if (_dataType.includes('Expression')) {
+        } else if (_dataType.includes('Expression<Func')) {
             dataType = `any`;
             initalize = false;
             originalDataType = undefined;

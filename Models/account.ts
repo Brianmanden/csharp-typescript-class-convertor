@@ -1,4 +1,5 @@
 import Shit from './shit';
+import { OperationExpressionEnum } from './operation-expression-enum';
 
 export default class Account extends Shit {
 	constructor() {
@@ -64,6 +65,8 @@ export default class Account extends Shit {
 	}
 
 	public AcID: number;
+	public sdsad: any;
+	public sadw: OperationExpressionEnum;
 	public AcName: string;
 	public AcCode: number;
 	public CreditORDepit: boolean;
