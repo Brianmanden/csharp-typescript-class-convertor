@@ -1,10 +1,16 @@
+import User from './user';
+
 export default class AddEmp {
 	constructor() {
-		this.Date = new Date();
+		this.userProfile = new User();
+		this.streamTest = {};
+		this.date = new Date();
 	}
 
-	public Name: string | undefined;
-	public Id: number | undefined;
-	public Number: number | undefined;
-	public Date: Date;
+	public name: string | undefined;
+	public userProfile: User;
+	public streamTest: any;
+	public id: number | undefined;
+	public number: number | undefined;
+	public date: Date;
 }

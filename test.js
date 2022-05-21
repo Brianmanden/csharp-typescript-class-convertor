@@ -5,7 +5,7 @@ ConvertProcess.StartExecution(
     [
         './CSharpModels',
     ], './Models', {
-        camelCase: false,
+        camelCase: true,
         usingDefaultInTsFile: true,
         usingClass: true
     }, []

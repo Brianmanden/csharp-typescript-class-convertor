@@ -345,9 +345,11 @@ export class Utility {
             if (line.includes(`//*****`)) {
                 var className = this.gettingClassNameFromComment(line, `//*****`);
                 var dataTypeObj = arrayOfFiles.find(f => f.tsClass == className);
+                console.info('here', dataTypeObj);
                 var newLine = line;
                 if (dataTypeObj != undefined) {
                     newLine = this.replaceInLine(line, className, 'any', line.indexOf(`:`));
+                    console.info("newLine ", newLine);
                     if (dataTypeObj.tsFile != file) {
                         var classFilePath = dataTypeObj.tsFile.substring(0, dataTypeObj.tsFile.lastIndexOf('.'));
                         if (config.usingDefaultInTsFile) {
@@ -379,6 +381,26 @@ export class Utility {
         lines.unshift(...imports.map(a => a.importLine));
 
         console.log(`End Adding Models Into File => ${_path}/${file}`);
+
+        var newFileContent = ``;
+        lines.forEach(line => {
+            newFileContent += line + '\n';
+        });
+
+        return newFileContent;
+    }
+
+    static startReplacingNewAny = (_path, file, arrayOfFiles, config) => {
+        console.log(`Start Replacing New Any In File => ${_path}/${file}`);
+        var lines = this.readLineByLine(path.join(_path, file));
+
+        //console.log(arrayOfFiles);
+        lines.forEach((line, index) => {
+            if (line.includes(`new any()`)) {
+                var newLine = line.replace('new any()', '{}');
+                lines[index] = newLine;
+            }
+        });
 
         var newFileContent = ``;
         lines.forEach(line => {
@@ -509,6 +531,7 @@ export class ConvertingProcess {
                 } else {
                     initLine += `;\n`;
                 }
+                console.info("ddsds", initLine);
             }
         } else {
             propertyLine = `\t${propertyInfo.propertyName}: ${propertyInfo.dataType}`;
@@ -564,7 +587,9 @@ export class ConvertingProcess {
             originalDataType = undefined;
         } else if (
             _dataType == `string` ||
-            _dataType == `char`
+            _dataType == `string?` ||
+            _dataType == `char` ||
+            _dataType == `char?`
         ) {
             dataType = `string | undefined`;
         } else if (
@@ -612,7 +637,7 @@ export class ConvertingProcess {
             initalize = false;
         } else {
             dataType = `any`;
-            initalize = false;
+            initalize = true;
             originalDataType = _dataType;
         }
 

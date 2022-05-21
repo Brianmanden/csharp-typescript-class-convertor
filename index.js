@@ -7,6 +7,7 @@ import {
 
 export default class ConvertProcess {
     static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels) => {
+        console.info = () => {};
         //camelCase: false,
         //usingDefaultInTsFile: false
         //usingClass:true
@@ -18,6 +19,7 @@ export default class ConvertProcess {
             this.startConvertingFilesStep1();
             this.deletingTempDirs();
             this.replaceAnyInTsFiles();
+            this.replaceNewAnyInFiles();
         } else {
             console.log('Not Valid Destination.');
         }
@@ -92,6 +94,15 @@ export default class ConvertProcess {
         var files = fs.readdirSync(this.destinationPath).filter(a => fs.lstatSync(path.join(this.destinationPath, a)).isFile());
         files.forEach(file => {
             var newFileContent = Utility.startReplacingAny(this.destinationPath, file, this.tsArray, this.config);
+            Utility.writeIntoFile(path.join(this.destinationPath, file), newFileContent);
+            console.log(`Done Updating Model ==> ${this.destinationPath}/${file}`);
+        });
+    }
+
+    static replaceNewAnyInFiles = () => {
+        var files = fs.readdirSync(this.destinationPath).filter(a => fs.lstatSync(path.join(this.destinationPath, a)).isFile());
+        files.forEach(file => {
+            var newFileContent = Utility.startReplacingNewAny(this.destinationPath, file, this.tsArray, this.config);
             Utility.writeIntoFile(path.join(this.destinationPath, file), newFileContent);
             console.log(`Done Updating Model ==> ${this.destinationPath}/${file}`);
         });
