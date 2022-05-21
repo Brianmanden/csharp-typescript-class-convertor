@@ -6,7 +6,7 @@ import {
 } from './package.js'
 
 export default class ConvertProcess {
-    static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels, notInitalizedProprties) => {
+    static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels, notInitalizedProprties = []) => {
         console.log = () => {};
         //camelCase: false,
         //usingDefaultInTsFile: false
