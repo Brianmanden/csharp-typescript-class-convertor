@@ -249,7 +249,7 @@ export class Utility {
         }
     }
 
-    static initConvertFile = (filePath, to, config) => {
+    static initConvertFile = (filePath, to, config, arrayToSkipProperties) => {
         var lines = this.readLineByLine(filePath);
         var fileContent = ``;
         var propertyArr = [];
@@ -290,7 +290,7 @@ export class Utility {
         }
 
         console.log(`Preparing Class ${classType.tsClass} For File ${classType.tsFile}`);
-        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config);
+        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config, arrayToSkipProperties);
 
         var toFilePath = path.join(to, classType.tsFile);
         console.log(`Writing Into File ${toFilePath}`);
@@ -299,7 +299,7 @@ export class Utility {
         return classType;
     }
 
-    static startReplacingAny = (_path, file, arrayOfFiles, config) => {
+    static startReplacingAny = (_path, file, arrayOfFiles, config, arrayToSkipProperties) => {
         console.log(`Start Adding Models Into File => ${_path}/${file}`);
         var lines = this.readLineByLine(path.join(_path, file));
         var currentClassName = this.switchingName(file, true);
@@ -345,11 +345,11 @@ export class Utility {
             if (line.includes(`//*****`)) {
                 var className = this.gettingClassNameFromComment(line, `//*****`);
                 var dataTypeObj = arrayOfFiles.find(f => f.tsClass == className);
-                console.info('here', dataTypeObj);
+                //console.log('here', dataTypeObj);
                 var newLine = line;
                 if (dataTypeObj != undefined) {
                     newLine = this.replaceInLine(line, className, 'any', line.indexOf(`:`));
-                    console.info("newLine ", newLine);
+                    //console.info("newLine ", newLine);
                     if (dataTypeObj.tsFile != file) {
                         var classFilePath = dataTypeObj.tsFile.substring(0, dataTypeObj.tsFile.lastIndexOf('.'));
                         if (config.usingDefaultInTsFile) {
@@ -531,7 +531,7 @@ export class ConvertingProcess {
                 } else {
                     initLine += `;\n`;
                 }
-                console.info("ddsds", initLine);
+                //console.info("ddsds", initLine);
             }
         } else {
             propertyLine = `\t${propertyInfo.propertyName}: ${propertyInfo.dataType}`;
@@ -665,12 +665,16 @@ export class ConvertingProcess {
         }
     }
 
-    static AddingConstructorAndFinalLine = (fileContent, propertyArray, config) => {
+    static AddingConstructorAndFinalLine = (fileContent, propertyArray, config, arrayToSkip) => {
         if (config.usingClass) {
             fileContent += `\tconstructor() {\n`;
+            console.info(arrayToSkip);
             // Adding The Init Lines
             propertyArray.filter(property => property.propertyInfo.initalize).forEach(property => {
-                fileContent += `${property.initLine}`;
+                console.info(property);
+                if (!arrayToSkip.find(a => a.fileName == property.propertyInfo.propertyTsFile && a.propertyName == property.propertyInfo.propertyName)) {
+                    fileContent += `${property.initLine}`;
+                }
             });
 
             // Adding The Constructor Final Line
@@ -679,6 +683,9 @@ export class ConvertingProcess {
 
         // Adding The Property One By One
         propertyArray.forEach(property => {
+            if (arrayToSkip.find(a => a.fileName == property.propertyInfo.propertyTsFile && a.propertyName == property.propertyInfo.propertyName)) {
+                property.propertyLine = property.propertyLine.replace(property.propertyInfo.propertyName, `${property.propertyInfo.propertyName}!`);
+            }
             fileContent += `${property.propertyLine}`;
         });
 

@@ -6,13 +6,14 @@ import {
 } from './package.js'
 
 export default class ConvertProcess {
-    static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels) => {
-        console.info = () => {};
+    static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels, notInitalizedProprties) => {
+        console.log = () => {};
         //camelCase: false,
         //usingDefaultInTsFile: false
         //usingClass:true
         this.config = _config;
         if (Utility.checkValid(arrayOfPathes)) {
+            this.notInitalizedProprties = notInitalizedProprties;
             this.prepareDestination(arrayOfPathes, toDirectory);
             this.startMovingFilesToTemp(excludedModels);
             this.startSplitingFiles();
@@ -77,7 +78,7 @@ export default class ConvertProcess {
         this.tsArray = [];
         var allFiles = fs.readdirSync(this.sourcePath);
         allFiles.forEach(file => {
-            var tsObj = Utility.initConvertFile(path.join(this.sourcePath, file), this.destinationPath, this.config);
+            var tsObj = Utility.initConvertFile(path.join(this.sourcePath, file), this.destinationPath, this.config, this.notInitalizedProprties);
             Utility.assignObjectToArray(tsObj, this.tsArray, 'tsClass', true);
         });
 

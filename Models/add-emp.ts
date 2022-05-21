@@ -10,6 +10,7 @@ export default class AddEmp {
 	public name: string | undefined;
 	public userProfile: User;
 	public streamTest: any;
+	public addEmpProfile!: AddEmp;
 	public id: number | undefined;
 	public number: number | undefined;
 	public date: Date;
