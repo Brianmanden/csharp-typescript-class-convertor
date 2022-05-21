@@ -290,7 +290,7 @@ export class Utility {
         }
 
         console.log(`Preparing Class ${classType.tsClass} For File ${classType.tsFile}`);
-        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(fileContent, propertyArr, config, arrayToSkipProperties);
+        fileContent = ConvertingProcess.AddingConstructorAndFinalLine(classType.tsFile, fileContent, propertyArr, config, arrayToSkipProperties);
 
         var toFilePath = path.join(to, classType.tsFile);
         console.log(`Writing Into File ${toFilePath}`);
@@ -665,14 +665,15 @@ export class ConvertingProcess {
         }
     }
 
-    static AddingConstructorAndFinalLine = (fileContent, propertyArray, config, arrayToSkip) => {
+    static AddingConstructorAndFinalLine = (tsClassName, fileContent, propertyArray, config, arrayToSkip) => {
+        console.info(tsClassName);
         if (config.usingClass) {
             fileContent += `\tconstructor() {\n`;
             console.info(arrayToSkip);
             // Adding The Init Lines
             propertyArray.filter(property => property.propertyInfo.initalize).forEach(property => {
                 console.info(property);
-                if (!arrayToSkip.find(a => a.fileName == property.propertyInfo.propertyTsFile && a.propertyName == property.propertyInfo.propertyName)) {
+                if (!arrayToSkip.find(a => a.fileName == tsClassName && a.propertyName == property.propertyInfo.propertyName)) {
                     fileContent += `${property.initLine}`;
                 }
             });
@@ -683,7 +684,7 @@ export class ConvertingProcess {
 
         // Adding The Property One By One
         propertyArray.forEach(property => {
-            if (arrayToSkip.find(a => a.fileName == property.propertyInfo.propertyTsFile && a.propertyName == property.propertyInfo.propertyName)) {
+            if (arrayToSkip.find(a => a.fileName == tsClassName && a.propertyName == property.propertyInfo.propertyName)) {
                 property.propertyLine = property.propertyLine.replace(property.propertyInfo.propertyName, `${property.propertyInfo.propertyName}!`);
             }
             fileContent += `${property.propertyLine}`;
