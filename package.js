@@ -557,7 +557,7 @@ export class ConvertingProcess {
             _dataType == `decimal` ||
             _dataType == `decimal?`
         ) {
-            dataType = `number`;
+            dataType = `number | undefined`;
         } else if (_dataType.includes('Expression')) {
             dataType = `any`;
             initalize = false;
@@ -566,12 +566,12 @@ export class ConvertingProcess {
             _dataType == `string` ||
             _dataType == `char`
         ) {
-            dataType = `string`;
+            dataType = `string | undefined`;
         } else if (
             _dataType == `bool` ||
             _dataType == `bool?`
         ) {
-            dataType = `boolean`;
+            dataType = `boolean | undefined`;
         } else if (
             _dataType == `DateTime` ||
             _dataType == `DateTime?`

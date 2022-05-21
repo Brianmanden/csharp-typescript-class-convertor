@@ -3,12 +3,10 @@ import path from 'path';
 
 ConvertProcess.StartExecution(
     [
-        '../Model1',
+        './CSharpModels',
     ], './Models', {
         camelCase: false,
         usingDefaultInTsFile: true,
         usingClass: true
-    }, [
-        path.join('..', 'Model1', 'AddEmp.cs')
-    ]
+    }, []
 );
