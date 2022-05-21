@@ -8,6 +8,7 @@ import {
 export default class ConvertProcess {
     static StartExecution = (arrayOfPathes, toDirectory, _config, excludedModels, notInitalizedProprties = []) => {
         console.log = () => {};
+        console.info = () => {};
         //camelCase: false,
         //usingDefaultInTsFile: false
         //usingClass:true

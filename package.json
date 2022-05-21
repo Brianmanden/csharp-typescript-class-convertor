@@ -1,6 +1,6 @@
 {
   "name": "csharp-typescript-class-convertor",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "csharp-typescript-class-convertor is a nodejs based library for converting classess from .net into angular 8(typescript code)",
   "main": "index.js",
   "type": "module",
